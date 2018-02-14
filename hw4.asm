@@ -1,6 +1,6 @@
-# Assignment: HW #3, Zhe Dang, Introduction to Computer Architecture
+# Assignment: HW #4, Zhe Dang, Introduction to Computer Architecture
 # Author: Kyler Little
-# Last Modified: 2/4/18
+# Last Modified: 2/13/18
 
 
 .text
@@ -51,7 +51,7 @@ main:
 		beq $t2, $zero, EXIT_SHIFT     # exit if $t2 is '\0' since I would have already copied '\0' to where $s2 points 
 		addi $s2, $s2, 1    # increment
 		j SHIFT_LOOP
-	EXIT_SHIFT:
+	EXIT_SHIFT:	
 	
 	# Print string.
 	li $v0, 4
@@ -60,12 +60,45 @@ main:
 	
 	
 	
-	# PROBLEM 2
+	# PROBLEM 2	
+	li $s0, 12
+	move $a0, $s0           # x
+	move $a1, $s0
+	addi $a1, $a1, -5       # x - 5
+	jal simpleEx
+	move $s1, $v0       # use $s1 for 'y'. Result of function call is in $v0.
+
+	li $a0, 14          # Set up parameter 1. It's 14.
+	move $a1, $s0       # Put 'x' into $a1 slot.
+	jal simpleEx
+	add $s1, $s1, $v0   # y = y + result of function call
+	
+	# Print 'y' to check if it's correct. 'y' is $s1. Result should be 50.
+	move $a0, $s1
+	li $v0, 1
+	syscall
 	
 	# Terminate the program
 	li $v0, 10
 	syscall
-	
+
+	simpleEx:
+		# Save $a0 and $a1
+		addi $sp, $sp, -8
+		sw $a0, 0($sp)
+		sw $a1, 4($sp)
+		
+		li $t0, 7          # z = 7
+		sll $a1, $a1, 1    # multiply y by 2
+		add $a0, $a0, $a1  # x + 2y
+		sub $a0, $a0, $t0  # x + 2y - z
+		move $v0, $a0
+		
+		# Reload $a0 and $a1
+		lw $a0, 4($sp)
+		lw $a1, 0($sp)	
+		addi $sp, $sp, 8
+		jr $ra	
 .data
 	myString: .space 64      # 64 chars = 64 bytes
 	user_instruction: .asciiz "Enter a string of length at most 64 characters with at least one 'a'.\n"
