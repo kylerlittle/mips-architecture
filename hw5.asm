@@ -6,6 +6,38 @@
 .text
 .globl main
 main:	
+	# PROBLEM 1: AlmostFibonacci
+	li $a0, 4
+	jal almostFibonacci
+	move $s7, $v0          # store almostFibonacci(4) in $s7
+	la $a0, almost_fib_message
+	li $v0, 4
+	syscall
+	move $a0, $s7
+	li $v0, 1
+	syscall
+	la $a0, newline
+	li $v0, 4
+	syscall
+	
+	
+	
+	# PROBLEM 2: Omega
+	li $a0, 15
+	jal omega
+	move $s6, $v0          # store omega(4) in $s6
+	la $a0, omega_message
+	li $v0, 4
+	syscall
+	move $a0, $s6
+	li $v0, 1
+	syscall
+	la $a0, newline
+	li $v0, 4
+	syscall
+
+
+
 	# PROBLEM 3: QuickSort
 	# Translated C Code from: https://www.geeksforgeeks.org/quick-sort/
 	
@@ -64,6 +96,53 @@ main:
 	# Terminate the program
 	li $v0, 10
 	syscall
+	
+almostFibonacci:
+	beqz $a0, base_case_0
+	beq $a0, 1, base_case_1
+	
+	# Save registers $a0 (N), $v0 (return value), and $ra (return address)
+	
+	# Not sure if I should actually save $v0... because I'm overriding it at the bottom. Which is why
+	# it's currently not working.
+	
+	sub $sp, $sp, 20
+	sw $a0, 0($sp)
+	sw $v0, 4($sp)
+	sw $ra, 8($sp)
+	sw $t0, 12($sp)
+	sw $t1, 16($sp)
+	
+	# Recurse. Store almostFibonacci(n-1) in $t0, almostFibonacci(n-2) in $t1
+	sub $a0, $a0, 1
+	jal almostFibonacci
+	move $t0, $v0
+	
+	sub $a0, $a0, 1
+	jal almostFibonacci
+	move $t1, $v0
+	
+	mul $t0, $t0, 2
+	mul $t1, $t1, 3
+	add $v0, $t0, $t1
+	
+	lw $t1, 16($sp)
+	lw $t0, 12($sp)
+	lw $ra, 8($sp)
+	lw $v0, 4($sp)
+	lw $a0, 0($sp)
+	addi $sp, $sp, 20
+	jr $ra
+	
+	base_case_0:
+		li $v0, 1
+		jr $ra
+	base_case_1:
+		li $v0, 2
+		jr $ra
+	
+omega:
+	jr $ra
 	
 quickSort:
 	bge $a1, $a2, exit_quickSort
@@ -162,7 +241,9 @@ printArray:
 	jr $ra
 	
 .data
-	arrA: .word 9, -18, 27, 84, 4, 11, 70    # size:7x4 = 28 bytes
+	almost_fib_message: .asciiz "almostFibonacci(4) = "
+	omega_message: .asciiz "omega(15) = "
+	arrA: .word 10, 2, 17, 9, 6, 4, 8    # size:7x4 = 28 bytes
 	arrB: .word 28, 26, 24, 22, 20, 18, 0, -18   # size 8x4 = 32 bytes
 	pre_sort_message: .asciiz "Pre-sorted Array:\n"
 	post_sort_message: .asciiz "Post-sorted Array:\n"
