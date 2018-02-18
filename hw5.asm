@@ -137,6 +137,17 @@ almostFibonacci:
 		jr $ra
 	
 omega:
+	# Store sum/result in $t0, counter m in $t1, $t2 to store m^2	
+	li $t1, 2          # initialize m to 2
+	move $t0, $zero
+	omega_loop:
+		bgt $t1, $a0, exit_omega_loop       # Once m > k, stop; recall we want to include m == k
+		mul $t2, $t1, $t1
+		add $t0, $t0, $t2
+		addi $t1, $t1, 2      # m += 2
+		j omega_loop
+	exit_omega_loop:
+	move $v0, $t0
 	jr $ra
 	
 quickSort:
