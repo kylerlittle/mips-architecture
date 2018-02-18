@@ -101,17 +101,12 @@ almostFibonacci:
 	beqz $a0, base_case_0
 	beq $a0, 1, base_case_1
 	
-	# Save registers $a0 (N), $v0 (return value), and $ra (return address)
-	
-	# Not sure if I should actually save $v0... because I'm overriding it at the bottom. Which is why
-	# it's currently not working.
-	
+	# Save registers $a0 (N), $ra (return address), $t0 (almostFibonacci(N-1)), $t1 (almostFibonacci(N-2))
 	sub $sp, $sp, 20
 	sw $a0, 0($sp)
-	sw $v0, 4($sp)
-	sw $ra, 8($sp)
-	sw $t0, 12($sp)
-	sw $t1, 16($sp)
+	sw $ra, 4($sp)
+	sw $t0, 8($sp)
+	sw $t1, 12($sp)
 	
 	# Recurse. Store almostFibonacci(n-1) in $t0, almostFibonacci(n-2) in $t1
 	sub $a0, $a0, 1
@@ -122,14 +117,14 @@ almostFibonacci:
 	jal almostFibonacci
 	move $t1, $v0
 	
+	# Calculate 2*almostFibonacci(N-1) + 3*almostFibonacci(N-2) and store in $v0
 	mul $t0, $t0, 2
 	mul $t1, $t1, 3
 	add $v0, $t0, $t1
 	
-	lw $t1, 16($sp)
-	lw $t0, 12($sp)
-	lw $ra, 8($sp)
-	lw $v0, 4($sp)
+	lw $t1, 12($sp)
+	lw $t0, 8($sp)
+	lw $ra, 4($sp)
 	lw $a0, 0($sp)
 	addi $sp, $sp, 20
 	jr $ra
